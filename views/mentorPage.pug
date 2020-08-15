@@ -1,0 +1,91 @@
+extends layout
+
+block content
+  .main.container
+    h1.display-5(style='color:purple;')
+     | Mentor Management Profile
+    br 
+    .row
+      .col
+       if mentorship
+        h3(style='color:black;') Your Mentorship Program
+        .table-responsive
+          table.table.table-striped
+            thead.thead-dark
+              tr.bg-success
+                th(scope='col') Mentorship
+                th(scope='col') Domain
+                th(scope='col') Duration
+                th(scope='col') Start Date
+                th(scope='col') End Date
+                th(scope='col') Availability
+                th(scope='col') Strategy
+                th(scope='col') Capacity
+                th(scope='col') status
+            tbody 
+                tr 
+                  td= 1
+                  td=mentorship.domain 
+                  td=mentorship.duration
+                  td=mentorship.startDate
+                  td=mentorship.endDate
+                  td=mentorship.availability
+                  td
+                    button.btn.btn-secondary(type='button' data-container='body' data-toggle='popover' data-placement='right' data-content=`${mentorship.strategy}`)
+                      | Strategy
+                  td=mentorship.mentees +'/'+mentorship.capacity
+                  td=mentorship.status
+    .row
+      .col
+       if requests.length != 0
+        h3(style='color:black;') Requests need approval
+        .table-responsive
+          table.table.table-striped
+            thead.thead-dark
+              tr.bg-danger
+                th(scope='col') Request
+                th(scope='col') Requestee
+                th(scope='col') Date of Request
+                th(scope='col') Approve
+                th(scope='col') Reject
+            tbody
+              each request, i in requests
+                tr
+                  td=i+1
+                  td
+                      a(href='/profile/'+request.requester._id style='color:grey;')
+                          | #{request.requester.name}
+                  td=request.requestDate
+                  td
+                    form(method='POST' action='/request/approve')
+                      input(type="hidden", name="id", value=request._id)
+                      button.btn.btn-success.btn-sm.active(type='submit' role='button' aria-pressed='true') Confirm
+                  td
+                    form(method='POST' action='/request/reject')
+                      input(type="hidden", name="id", value=request._id)
+                      button.btn.btn-danger.btn-sm.active(type='submit' role='button' aria-pressed='true') Reject
+    .row
+      .col
+       if mentees.length != 0
+        h3(style='color:black;') Your Mentees
+        .table-responsive
+          table.table.table-striped
+            thead.thead-dark
+              tr.bg-warning
+                th(scope='col') Mentorship
+                th(scope='col') Mentee
+                th(scope='col') Status
+                th(scope='col') Contact
+            tbody
+              each mentee, i in mentees 
+                tr
+                  td=i+1
+                  td
+                      a(href='/profile/'+mentee.requester._id style='color:gray;')
+                          | #{mentee.requester.name}
+                  td=mentee.status
+                  td via email
+  script. 
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })

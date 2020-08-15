@@ -1,0 +1,107 @@
+mixin function(grades,user)
+    each n ,i in grades
+        p= n+ "-" +i
+            strong #{user.name}
+        .text= user.name
+    else 
+         p no value
+
+doctype html
+html
+    head
+        title= title
+        style. 
+            .class1, .class2 {
+                font-family: sans-serif;
+                line-height: 1.5;
+                padding: 10px;
+                border: 1px solid #555;
+                width: 250px;
+            }
+    body
+        include includes/nav
+        h1#pageTitle  Welcome to Alumni Advisory
+        p.big-para. 
+            This
+            is 
+            para
+        ul
+            li 
+                input(type="password" name="pwd" style="color:red" data-js=`${1>2 ? "Ok" :"NOT OK"}`)
+                - const myClasses = ["class1","class2"]
+                div.my-div(class=myClasses)
+
+                - const myStyles ={"background-color":"red","color":"blue"}
+                div(style=myStyles)
+
+                -const myAttr = {"src":"Image.png","alt":'a photo'}
+                img&attributes(myAttr)
+            li 
+                input(type="text" disabled)
+            li 
+                -const grades={"Qais":85,"Manar":99}
+                -let user ={name:"Qais",age:22}
+                +function(grades,user)
+                +function(grades,user)
+                        
+
+nav.navbar.navbar-fixed-top.navbar-dark.bg-inverse
+  button.navbar-toggler.hidden-md-up.pull-xs-right(type='button', data-toggle='collapse', data-target='#navbar') &#x2630;
+  #navbar.navbar-nav.collapse.navbar-toggleable-sm
+    .container
+      a.navbar-brand(href='/')
+        i.icn-logo.material-icons school
+        | Alumni Advisory
+      .nav-items.clearfix
+        if !currentUser
+          a.nav-item.nav-link(href='/register') Sign Up
+        else 
+          a.nav-item.nav-link(href='/messenger') Chat
+        a.nav-item.nav-link(href='/forum') Forum
+        a.nav-item.nav-link(href='/events') Events
+        a.nav-item.nav-link(href='/profile') My Profile
+      if currentUser
+        div
+          img.avatar.img-circle.hidden-xs-down(src='/images/avatar.png', alt='avatar')
+          a.btn.btn-light.pull-md-right(href='/logout') Log out
+      else  
+        a.btn.btn-info.pull-md-right(href='/login') Login
+
+
+nav.navbar.navbar-expand-lg.navbar-dark.bg-dark(style="margin: 50% auto;")
+  a.navbar-brand(href='/') Alumni Advisory
+    i.icn-logo.material-icons school
+  button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+    span.navbar-toggler-icon
+  #navbarSupportedContent.collapse.navbar-collapse
+    ul.navbar-nav.mr-auto
+      li.nav-item
+        if !currentUser
+          a.nav-item.nav-link(href='/register') Sign Up
+        else 
+          a.nav-item.nav-link(href='/messenger') Chat
+      li.nav-item
+        a.nav-link(href='#') Forum
+      li.nav-item
+        if !currentUser
+          a.nav-link.disabled(href='#') Profile
+        else 
+          a.nav-link(href='/profile') Profile
+      li.nav-item.dropdown
+        a#navbarDropdown.nav-link.dropdown-toggle(href='/mentorship' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+          | Mentorship
+        .dropdown-menu(aria-labelledby='navbarDropdown')
+          a.dropdown-item(href='/mentorsList') Need a mentor
+          a.dropdown-item(href='/mentorForm') Be a mentor
+          .dropdown-divider
+          a.dropdown-item(href='#') Something else here
+    form.form-inline.my-2.my-lg-0
+      if currentUser
+        div
+          -if(currentUser.photo) var img = currentUser.photo.includes("uploads") ? "./" + currentUser.photo.replace("uploads\\","/") : currentUser.photo.replace("uploads\\","/");
+          img.avatar.img-circle.hidden-xs-down(src= img || '/images/avatar.png', alt='avatar')
+          a.btn.btn-light.pull-md-right(href='/logout') Log out
+      else  
+        a.btn.btn-info.pull-md-right(href='/login') Login
+  
+  

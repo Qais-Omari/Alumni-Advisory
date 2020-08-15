@@ -1,0 +1,49 @@
+extends layout
+
+block content
+  .main.container
+   .row
+    .col-md-3
+    .col-md-6.col-md-offset-3
+        h1.display-4.m-b-2(style="color:purple;")
+          i.fas.fa-graduation-cap
+          |  Alumni Chatrooms
+        br
+        form.needs-validation(action='chat', method="GET", novalidate)
+          div.form-group
+            label(for='username' style="color:black;") Username
+            input#username.form-control(type='text' name='username' minlength='3' maxlength='20' placeholder='Enter username...' required='')
+            .invalid-feedback
+              | Please provide a username within 3 to 20 characters.
+          div.form-group
+            label(for='room' style="color:black;") Room
+            select#room.custom-select(name='room' required='')
+              option(selected='' disabled='' value='') Choose...
+              option(value='General') General
+              option(value='Newcomers') Newcomers
+              option(value='Seniors') Senior Students
+              option(value='Graduates') Fresh Graduates
+              option(value='Local') Local Alumni 
+              option(value='International') International Alumni
+            .invalid-feedback
+              | Please select a room.            
+          button.btn.btn-light(type='submit' style='color:purple; margin-left: 40%;') Join Chat
+  script. 
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();

@@ -1,0 +1,74 @@
+extends layout
+
+block content
+  style. 
+    html { height: 100%; overflow:auto; }
+    body { height: 100%; }
+  .main.container
+      header.blog-post-header
+        h1.display-3.title.mb-2(style="color:purple;") #{title}
+        .meta.mb-3
+          span.date(style="color:black;") Published on #{publishDate} by #{author}
+          //span.time 5 min read
+          span.comment
+            a.badge.badge-warning(onclick='myFunction()' style="margin-left:2%; color:white") #{noOfComments} comments
+      .blog-post-body
+        if photo
+          figure.blog-banner
+            a
+              -if(photo) var img= photo.replace("uploads\\","/");
+              img.img-fluid(src=img alt='image')
+        p(style="color:black; white-space: pre-wrap; margin-left:5%;")=content
+      header.blog-post-header
+        h2#focus.title.mb-2(style="color:purple;") Comments Section
+        br
+        each comment, i in comments
+         .card.text-white.bg-dark.mb-3(style='width:100%;')
+          .card-header #{comment.author.name}
+          .card-body
+            h6.card-title #{comment.timestamp}
+            p.card-text
+              | #{comment.content}
+        if name
+          .card.border-secondary.mb-3(style='width:100%;')
+            .card-header(style='color:purple;') #{name}
+            .card-body.text-secondary
+              h5.card-title Write your comment.
+              form.needs-validation(method='POST' action='/posts/comment' novalidate)
+                input(type="hidden", name="postId", value=postId)
+                .form-group.row
+                  .col-sm-10
+                    //input#comment(type="text", name="comment", style="color:black; width:100%;")
+                    textarea#comment.form-control(name="comment", cols="30", rows="5", maxlength="280", required)
+                    .invalid-feedback
+                     | Please enter a comment with maximum 280 characters.
+                  .col-sm-2
+                    button.btn.btn-outline-secondary(type='submit') Comment
+        else 
+          h5(style="color:black;") Sign in to comment.
+           
+  script.
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+     
+    function myFunction() { 
+      //window.scrollTo(0,document.body.scrollHeight); 
+      window.scrollTo(0,document.querySelector(".main.container").scrollHeight);
+      //console.log(window.innerWidth);
+    }

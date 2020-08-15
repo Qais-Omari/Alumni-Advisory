@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  .main.container.text-xs-center
+    h1.display-4(style="color:purple;") List of Members
+    br
+    if users.length == 0 
+        h1.display-4(style="color:purple;") There're no current Members
+    each user, i in users
+        .card.border-dark.text-dark.mb-3(style='max-width: 100%;')
+            .card-header
+                | Member #{i+1}
+            .card-body
+                h5.card-title
+                    a.stretched-link(href=`/profile/${user._id}` style="color:purple;")=user.name
+                p.card-text.text-left(style='display: inline-block; width:33%; background-color:white;')
+                 | E-mail: #{user.email}    
+                if user.phone
+                 p.card-text.text-left(style='display: inline-block; width:33%; background-color:white;')
+                    | Phone: #{user.phone} 
+                if user.address
+                 p.card-text.text-left(style='display: inline-block; width:33%; background-color:white;')
+                    | Address: #{user.address}   

@@ -1,0 +1,58 @@
+extends layout
+
+block content
+  .main.container.clearfix
+    if !view
+      a.btn.btn-secondary(href='/profile/edit' role='button' style="position:absolute; margin-left:60%; margin-up:5%;")
+        i.fa.fa-cog(aria-hidden='true')
+        |  Edit Profile
+    .row
+      .col-md-8.col-md-offset-2
+          h1.display-5(style="color:purple;")
+            if !photo
+              img.avatar.img-circle.hidden-xs-down(src='/images/avatar.png', alt='avatar')
+              | #{name}
+            else
+              -var img = photo.includes("uploads") ? "../../" + photo.replace("uploads\\","/") : photo.replace("uploads\\","/"); 
+              img.avatar.img-circle.hidden-xs-down(src=img , alt='avatar')
+              | #{name}
+          br
+    .row
+      .col-md-8.col-md-offset-2
+        .card.text-center
+          .card-header
+            ul.nav.nav-pills.card-header-pills
+              li.nav-item
+                a.btn.btn-secondary.nav-link(href='/profile') Info
+              if linkedIn
+                li.nav-item(style='margin:auto 2% auto;')
+                  a.btn.btn-primary(href=linkedIn)
+                    i.fa.fa-linkedin(aria-hidden='true')
+                    |  LinkedIn
+              else
+                li.nav-item(style='margin:auto 2% auto;')
+                  a.btn.btn-outline-dark.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true')
+                    i.fa.fa-linkedin(aria-hidden='true')
+                    |  LinkedIn
+              ili.nav-item
+                  a.btn.btn-secondary.nav-link.active(href='#') Posts
+          .card-body
+            each post, i in posts
+              .item.mb-5.card.bg-light.mb-3
+               .media
+                -if(post.photo) var img= post.photo.replace("uploads\\","/"); else var img = '/images/post.jpg';
+                img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src=img alt='image' style="width: 200px; height: 200px")
+                .media-body
+                    .card-header
+                      h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                        a(href=`/posts/${post._id}` style="color:purple;") #{post.title}
+                      .meta.mb-1
+                        span.date(style="color:black; font-size:small;") Published on #{post.publishDate} By #{post.author.name}
+                        span.comment
+                          a.badge.badge-warning(href=`/posts/${post._id}` style="margin-left:2%; color:white") #{post.comments.length} comments
+                        if editView
+                          a.badge.badge-danger(href=`/posts/edit/${post._id}` style="margin-left:2%; color:white") Edit
+                    .intro.card-body
+                    p.lead(style="color:purple; font-size:medium; transform: rotate(0);")  
+                     | #{post.content}...
+                     a.more-link.badge.badge-info.stretched-link(href=`/posts/${post._id}` style='margin-up: 2%;') Read more &rarr;

@@ -1,0 +1,54 @@
+extends layout
+
+block content
+  .main.container.clearfix
+    if !view
+      a.btn.btn-secondary(href='/profile/edit' role='button' style="position:absolute; margin-left:60%; margin-up:5%;")
+        i.fa.fa-cog(aria-hidden='true')
+        |  Edit Profile
+    .row
+      .col-md-8.col-md-offset-2
+          h1.display-5(style="color:purple;")
+            if !photo
+              img.avatar.img-circle.hidden-xs-down(src='/images/avatar.png', alt='avatar')
+              | #{name}
+            else
+              -var img = photo.includes("uploads") ? "../" + photo.replace("uploads\\","/") : photo.replace("uploads\\","/"); 
+              img.avatar.img-circle.hidden-xs-down(src=img , alt='avatar')
+              | #{name}
+          br
+    .row
+      .col-md-8.col-md-offset-2
+        .card.text-center
+          .card-header
+            ul.nav.nav-pills.card-header-pills
+              li.nav-item
+                a.btn.btn-secondary.nav-link.active(href='/profile') Info
+              if linkedIn
+                li.nav-item(style='margin:auto 2% auto;')
+                  a.btn.btn-primary(href=linkedIn)
+                    i.fa.fa-linkedin(aria-hidden='true')
+                    |  LinkedIn
+              else
+                li.nav-item(style='margin:auto 2% auto;')
+                  a.btn.btn-outline-dark.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true')
+                    i.fa.fa-linkedin(aria-hidden='true')
+                    |  LinkedIn
+              if postsExist
+                -const userId = id;
+                li.nav-item
+                  a.btn.btn-secondary.nav-link(href=`/profile/posts/${userId}`) Posts
+              else
+                li.nav-item
+                  a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Posts
+          .card-body
+            if bio
+              h5.card-title(style="color:black;") Biography
+              p.card-text(style="color:black;  white-space: pre-wrap;")=bio
+            h5.card-title(style="color:black;") Contact Info
+            p.card-text(style="color:black;") 
+              | Email: #{email}<br>
+              if phone  
+                | Phone: #{phone}<br>
+              if address
+                | Address: #{address}<br>

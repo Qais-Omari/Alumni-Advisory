@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  .main.container.text-xs-center
+    h1.display-4(style="color:purple;") Latest Events
+    br
+    if currentUser && currentUser.isAdmin
+      h3 
+        a.btn.btn-secondary(href='/events/form' role='button' style="margin-left:87%; color:off-white;")  Create Event 
+          i.fa.fa-mouse-pointer(aria-hidden='true')
+      br
+    .row
+      if events.length == 0 
+        h1.display-4(style="color:purple;") There're no current Events
+      each event, i in events    
+        .card.text-white.bg-secondary.mb-3(style='max-width: 18rem; margin-right: 5%;')
+            .card-header.text-monospace= event.title
+             if currentUser && currentUser.isAdmin
+              a.badge.badge-warning(href=`/events/edit/${event._id}` style='margin: 0 2% 0 2%;') Edit
+            .card-body
+                h6.card-title(style='font-size:small; color:purple; font-weight: bold;')
+                  | #{event.date} | #{event.address}
+                p.card-text.font-weight-lighter
+                  | #{event.description}...
+                a.badge.badge-light(href=`/events/details/${event._id}` style="color:purple;") View event

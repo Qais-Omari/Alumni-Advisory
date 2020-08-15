@@ -1,0 +1,53 @@
+extends layout
+
+block content
+  .main.container
+    .row
+      .col-md-12
+       h1.display-5(style='color:purple;')
+        | Mentors List
+       p(style='color:black;')
+        | Browse mentors profiles and request the one who can guide your future career.
+       .table-responsive
+        table.table.table-striped
+          thead.thead-dark
+            tr.bg-primary
+              th(scope='col') Mentor
+              th(scope='col') Domain
+              th(scope='col') Duration
+              th(scope='col') Start Date
+              th(scope='col') End Date
+              th(scope='col') availability
+              th(scope='col') Strategy
+              th(scope='col') Capacity
+              th(scope='col') Request
+          tbody
+            each mentorship, i in mentorships
+              tr 
+                td
+                  a(href='/profile/'+mentorship.mentor._id style='color:grey;')
+                    | #{mentorship.mentor.name}
+                td=mentorship.domain 
+                td=mentorship.duration
+                td=mentorship.startDate
+                td=mentorship.endDate
+                td=mentorship.availability
+                td
+                  button.btn.btn-secondary(type='button' data-container='body' data-toggle='popover' data-placement='left' data-content=`${mentorship.strategy}`)
+                    | Strategy
+                td=mentorship.mentees +'/'+mentorship.capacity
+                if(mentorship.mentees !== mentorship.capacity)
+                  td 
+                    if !mentorship.sentRequest 
+                      form(method='POST' action='/request/')
+                        input(type="hidden", name="id", value=mentorship._id)
+                        button.btn.btn-outline-secondary.btn-sm.active( type='submit' role='button' aria-pressed='true') Send
+                    else 
+                       a.btn.btn-outline-secondary.btn-sm.disabled(href='#' role='button' aria-disabled='true') Sent!
+                else
+                  td 
+                    a.btn.btn-danger.btn-sm.disabled(href='#' role='button' aria-disabled='true') full
+  script. 
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })

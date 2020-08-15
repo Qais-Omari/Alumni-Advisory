@@ -1,0 +1,30 @@
+nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+ .container
+  a.navbar-brand(href='/')
+        i.icn-logo.material-icons school
+        | Alumni Advisory
+  button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarNavAltMarkup' aria-controls='navbarNavAltMarkup' aria-expanded='false' aria-label='Toggle navigation')
+    span.navbar-toggler-icon
+  #navbarNavAltMarkup.collapse.navbar-collapse
+   .container 
+    .navbar-nav(style="width:100%")
+      a.nav-item.nav-link.active(href='/')
+        | Home 
+        span.sr-only (current)
+      if !currentUser
+        a.nav-item.nav-link(href='/register') Sign Up
+      else 
+        a.nav-item.nav-link(href='/messenger') Chat
+      a.nav-item.nav-link(href='/posts?pageNumber=1') Forum
+      a.nav-item.nav-link(href='/mentorship') Mentorship
+      a.nav-item.nav-link(href='/events/') Events
+      if currentUser
+        if currentUser.isAdmin
+          a.nav-item.nav-link(href='/profile/members') Members
+        a.nav-item.nav-link(href='/profile') Profile
+        form.form-inline.my-2.my-lg-0(style="position: absolute; margin-left:45%")
+          -if(currentUser.photo) var img = currentUser.photo.replace("uploads\\","/");
+          img.avatar.img-circle.hidden-xs-down(src= img || '/images/avatar.png', alt='avatar')
+          a.btn.btn-light.pull-md-right(href='/logout') Log out
+      else  
+        a.btn.btn-light.pull-md-right(href='/login' style="position: absolute; margin-left:45%") Login

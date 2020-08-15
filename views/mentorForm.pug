@@ -1,0 +1,233 @@
+extends layout
+
+block content
+  .main.container.clearfix
+    .row
+      .col-md-2
+      .col-md-8.col-md-offset-2
+          form.needs-validation(action="/mentorship/apply", method="post", novalidate)
+            h1.display-5(style='color:purple;') 
+                | Mentorship Mentor's Application
+            br
+            .form-group.row
+                .col-sm-4(style='color:black;')  Experience Domain
+                .col-sm-4.radio-group
+                    .form-check
+                    input#gridRadios1.form-check-input(type='radio' name='domain' value='engineering' checked='' required)
+                    label.form-check-label(for='gridRadios1' style='color:black;')
+                        | Engineering
+                    .form-check
+                    -if (mentorship && mentorship.domain == 'IT') var flag1 = true; else var flag1 = false;
+                    input#gridRadios2.form-check-input(type='radio' name='domain' checked=flag1 value='IT')
+                    label.form-check-label(for='gridRadios2' style='color:black;')
+                        | Information Technology
+                    .form-check.disabled
+                    -if (mentorship && mentorship.domain == 'business') var flag2 = true; else var flag2 = false;
+                    input#gridRadios3.form-check-input(type='radio' name='domain' value='business')
+                    label.form-check-label(for='gridRadios3' style='color:black;')
+                        | Business
+            .form-group.row
+                .col-sm-4.form-group
+                  label(for='startDate' style='color:black;') Program Starting Date:
+                  -if (typeof(mentorship) !== 'undefined') var startDate= mentorship.startDate; else var startDate = '';
+                  input#startDate.form-control(type="date", name="startDate" value=startDate onblur="checkStartDate()" onchange="insertEndDate()" required)
+                  .invalid-feedback
+                    | Please select a date in the future. 
+                .form-group.col-md-4
+                  label(for='inputState1' style='color:black;') Program Duration
+                  select#duration.custom-select(name="duration" onchange='insertEndDate()' required) 
+                      option(selected='' disabled='' value='') Choose...
+                      -if (mentorship && mentorship.duration=="1 month") var flag3 = true; else var flag3 = false;
+                      option(value="1 month" selected=flag3) 1 Month
+                      -if (mentorship && mentorship.duration=="3 months") var flag4 = true; else var flag4 = false;
+                      option(value="3 months" selected=flag4) 3 Months
+                      -if (mentorship && mentorship.duration=="6 months") var flag5 = true; else var flag5 = false;
+                      option(value="6 months" selected=flag5) 6 Months
+                  .invalid-feedback
+                    | Please select a valid range.
+                .col-sm-4.form-group
+                  label(for='endDate' style='color:black;') Program Finishing Date:
+                  -if (typeof(mentorship) !== 'undefined') var endDate= mentorship.endDate; else var endDate = '';
+                  input#endDate.form-control(type="date", name="endDate" value=endDate readonly)     
+            .form-group.row
+              .form-group.col-md-4
+                label(for='inputState2' style='color:black;') Mentor's Availability
+                select#inputState2.custom-select(name="availability" required)
+                    option(selected='' disabled='' value='') Choose...
+                    -if (mentorship && mentorship.availability=="daily") var flag6 = true; else var flag6 = false;
+                    option(value="daily" selected=flag6) Daily
+                    -if (mentorship && mentorship.availability=="weekly") var flag7 = true; else var flag7 = false;
+                    option(value="weekly" selected=flag7) Weekly
+                    -if (mentorship && mentorship.availability=="monthly") var flag8 = true; else var flag8 = false;
+                    option(value="monthly" selected=flag8) Monthly
+                .invalid-feedback
+                  | Please select a valid frequency.   
+              .form-group.col-md-4
+                label(for='inputState3' style='color:black;') Targeted Mentees
+                select#inputState3.custom-select(name="target" required)
+                    option(selected='' disabled='' value='') Choose...
+                    -if (mentorship && mentorship.target=="fresh students") var flag9 = true; else var flag9 = false;
+                    option(value="fresh students" selected=flag9) Fresh Students
+                    -if (mentorship && mentorship.target=="senior students") var flag10 = true; else var flag10 = false;
+                    option(value="senior students" selected=flag10) Senior Students
+                    -if (mentorship && mentorship.target=="fresh graduates") var flag11 = true; else var flag11 = false;
+                    option(value="fresh graduates" selected=flag11) Fresh graduates
+                .invalid-feedback
+                  | Please select a valid category. 
+              .form-group.col-md-4
+                label(for='inputState3' style='color:black;') Program Capacity
+                select#inputState3.custom-select(name="capacity" required)
+                    option(selected='' disabled='' value='') Choose...
+                    -if (mentorship && mentorship.capacity==1) var flag12 = true; else var flag12 = false;
+                    option(value=1 selected=flag12) 1
+                    -if (mentorship && mentorship.capacity==2) var flag13 = true; else var flag13 = false;
+                    option(value=2 selected=flag13) 2
+                    -if (mentorship && mentorship.capacity==3) var flag14 = true; else var flag14 = false;
+                    option(value=3 selected=flag14) 3 
+                    -if (mentorship && mentorship.capacity==4) var flag15 = true; else var flag15 = false;
+                    option(value=4 selected=flag15) 4
+                    -if (mentorship && mentorship.capacity==5) var flag16 = true; else var flag16 = false;
+                    option(value=5 selected=flag16) 5    
+                .invalid-feedback
+                  | Please select a valid number.     
+            .form-group.row
+              .col
+                -if (typeof(mentorship) !== 'undefined') var strategyTxt= mentorship.strategy; else var strategyTxt = '';
+                label(for='exampleFormControlTextarea1' style='color:black;') Mentoring Strategy
+                textarea#exampleFormControlTextarea1.form-control(rows='3' name="strategy" placeholder="Please specify your mentorship goals, agenada, schedule and Deadline for accepting requests." minlength="100" required)
+                    | #{strategyTxt}
+                .invalid-feedback
+                  | Please enter a strategy in the textarea which contains at least 100 characters.
+            .form-group.row
+                .col-md-3
+                .col-md-6
+                  if !mentorship
+                    button#apply.btn.btn-secondary(type='submit' style='margin-left:40%;' onclick="") Apply
+            .form-group.row
+                .col-md-3
+                .col-md-6
+                 if mentorship
+                  button#checkMentorship.btn.btn-danger(type='button' style='margin-left:40%;' data-toggle='modal' data-target='#exampleModal')
+                    | Cancel
+                  button#showWarning.show-toast.btn.btn-danger(type='button' style='margin-left:40%;')
+                    | Cancel
+  // Modal
+  #exampleModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel.modal-title Mentorship Cancellation
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          | Are you sure you want to cancel this mentorship?
+        .modal-footer
+         button.btn.btn-secondary(type='button' data-dismiss='modal') No
+         form(action="/mentorship/cancel", method="post")
+          button.btn.btn-danger(type='submit') Yes
+  .toast(style='position: absolute; top: 25%; right: 25%;')
+    .toast-header
+      img.rounded.mr-2(src='/images/warning.jpg' alt='warning' style='width:20px; height:20px;')
+      strong.mr-auto Warning!
+      small now
+      button.ml-2.mb-1.close(type='button' data-dismiss='toast' aria-label='Close')
+        span(aria-hidden='true') &times;
+    .toast-body
+      | You can only cancel Mentorship if you don't have active mentees or the mentorship has finished!
+  script. 
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+
+    $(document).ready(function(){
+      $(".show-toast").hide();
+      $.ajax({url: "/mentorship/check", method: 'GET',
+          error: function(xhr, status, error) {
+            $("#checkMentorship").hide(); 
+            $("#showWarning").show();
+      }});
+      $(".show-toast").click(function(event){
+          $(".toast").toast({
+            autohide: true,
+            delay: 5000
+          }).toast('show');
+      }); 
+    });
+    
+    function checkStartDate() {
+      var element = document.getElementById("startDate");
+      element.classList.remove("is-invalid");
+      var date = document.getElementById("startDate").value;
+      var varDate = new Date(date); //dd-mm-YYYY
+      var today = new Date();
+      today.setHours(24,0,0,0);
+      if( varDate.getTime() <= today.getTime()) {
+        //alert("The start Date should be in future!");
+        element.classList.remove("is-valid");
+        element.classList.add("is-invalid");
+        return false;
+      }
+      else{
+        element.classList.add("is-valid");
+        return true;
+      }
+    }
+
+    function getDuration(duration) {
+      switch (duration) {
+        case "6 months":
+          return 6;
+        case "3 months":
+          return 3;
+        default:
+          return 1;
+      }
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) 
+            month = '0' + month;
+        if (day.length < 2) 
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    function insertEndDate(){
+      var duration = document.getElementById("duration").value;
+      var date = document.getElementById("startDate").value;
+      var varDate = new Date(date); //dd-mm-YYYY
+
+      var endDate = new Date(
+        varDate.setMonth(varDate.getMonth() + getDuration(duration))
+      );
+      //console.log(endDate);
+      document.getElementById("endDate").value= formatDate(endDate);
+    }
+  if !mentorship
+    script. 
+      document.getElementById("apply").addEventListener("click", function(event){
+        if(!checkStartDate()){
+          event.preventDefault();
+        }
+      });

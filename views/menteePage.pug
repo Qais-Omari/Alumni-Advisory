@@ -1,0 +1,74 @@
+extends layout
+
+block content
+  .main.container
+    h1.display-5(style='color:purple;')
+      | Mentee Management Profile
+    br 
+    .row
+      .col
+       if requests.length != 0
+        h3(style='color:black;') Your Mentorship Requests  
+        .table-responsive
+         table.table.table-striped
+          thead.thead-dark
+            tr.bg-success
+              th(scope='col') Requests
+              th(scope='col') Mentor
+              th(scope='col') Domain
+              th(scope='col') Duration
+              th(scope='col') Start Date
+              th(scope='col') End Date
+              th(scope='col') Availability
+              th(scope='col') Strategy
+              th(scope='col') Status
+              th(scope='col') Revoke
+          tbody 
+              each request, i in requests
+               if request.mentorship
+                tr 
+                  td= i+1
+                  td
+                    a(href='/profile/'+request.mentorship.mentor._id style='color:grey;')
+                      | #{request.mentorship.mentor.name}
+                  td=request.mentorship.domain 
+                  td=request.mentorship.duration
+                  td=request.mentorship.startDate
+                  td=request.mentorship.endDate
+                  td=request.mentorship.availability
+                  td
+                    button.btn.btn-secondary(type='button' data-container='body' data-toggle='popover' data-placement='right' data-content=`${request.mentorship.strategy}`)
+                      | Strategy
+                  td=request.status
+                  td
+                    -if(request.status!='approved')
+                     form(method='POST' action='/request/revoke')
+                      input(type="hidden", name="id", value=request._id)
+                      button.btn.btn-danger(type='submit' role='button' aria-pressed='true') Revoke
+                    -else
+                     button.btn.btn-danger( role='button' aria-pressed='true' disabled) Revoke
+    .row
+      .col
+       if mentors.length != 0
+        h3(style='color:black;') Your Mentors
+        .table-responsive
+         table.table.table-striped
+          thead.thead-dark
+            tr.bg-info
+              th(scope='col') Mentorship
+              th(scope='col') Mentor
+              th(scope='col') Status
+              th(scope='col') Contact
+          tbody 
+            each mentor, i in mentors
+                tr 
+                  td= i+1
+                  td
+                    a(href='/profile/'+mentor.mentorship.mentor._id style='color:grey;')
+                      | #{mentor.mentorship.mentor.name}
+                  td=mentor.mentorship.status
+                  td via email
+  script. 
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })

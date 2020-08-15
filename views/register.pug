@@ -1,0 +1,123 @@
+extends layout
+
+block content
+  .main.container
+   .row
+    .col-md-2
+    .col-md-8.col-md-offset-2
+      h1.display-4.m-b-2(style="color:purple;") Sign Up
+      br
+      // register form
+      form.needs-validation(method='POST' action='/api/auth/register' novalidate)
+        div.form-group
+          label(for='name' style="color:purple;") Name:
+          input#name.form-control(type='text' name='name' placeholder='First and last name' minlength="8" maxlength="30" pattern='^[a-z \s A-Z]+$' required)
+          .invalid-feedback
+            | Please enter a valid name within 5 to 50 alphabetic characters.
+        div.form-group
+          label(for='email' style="color:purple;") Email:
+          input#email.form-control(type='email', placeholder='name@email.com' name='email' minlength="8" maxlength="30"  required)
+          .invalid-feedback
+            | Please enter a valid email.
+        div.form-group
+          label(for='DateofBirth' style="color:purple;") Date of Birth:
+          input#DateofBirth.form-control(type='date', placeholder='Date of Birth' name='birthDate' onblur="checkDateofBirth()" required)
+          .invalid-feedback
+            | Your birth date should be older than 2004.
+        div.form-group
+          label(for='password' style="color:purple;") Password:
+          input#password.form-control(type='password' name='password' onkeyup='check();' pattern='^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,26}$' required)
+          .invalid-feedback
+            | Please enter a valid password which satisfy these conditions: <br>
+            p.
+                At least 1 Uppercase <br>
+                At least 1 Lowercase <br>
+                At least 1 Number <br>
+                At least 1 Symbol, symbol allowed --> !@#$%^&*_=+- <br>
+                Min 8 chars and Max 26 chars <br>
+        div.form-group
+          label(for='confirm_password' style="color:purple;") Confirm Password:  
+          span#message(style='')
+          input#confirm_password.form-control(type='password' name='confirmPassword' onkeyup='check();' pattern='^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,26}$' required)
+          .invalid-feedback
+            | Please confirm your password.
+        .form-group
+          .form-check
+            input#invalidCheck.form-check-input(type='checkbox' value='' required='')
+            label.form-check-label(for='invalidCheck' style='color:purple;')
+              | Agree to terms and conditions
+            .invalid-feedback
+              | You must agree before submitting.
+        button#register.btn.btn-secondary(type='submit' style='margin-left:45%;' onclick='checkBeforeSubmit();') Sign up
+  script.
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+    'use strict';
+      window.addEventListener('load', function() {
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.getElementsByClassName('needs-validation');
+      // Loop over them and prevent submission
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+
+    var check = function() {
+      if (document.getElementById('password').value ==
+        document.getElementById('confirm_password').value) {
+        document.getElementById('message').style.color = 'green';
+        document.getElementById('message').innerHTML = ' Matching';
+      } else {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = ' Not matching';
+      }
+    }
+
+    var checkBeforeSubmit = function() {
+      if (document.getElementById('password').value ==
+        document.getElementById('confirm_password').value) {
+        document.getElementById('message').style.color = 'green';
+        document.getElementById('message').innerHTML = ' Matching';
+      } else {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = ' Not matching';
+        document.getElementById('confirm_password').value = '';
+      }
+    }
+
+    function _calculateAge(birthday) { // birthday is a date
+      var ageDifMs = Date.now() - birthday.getTime();
+      var ageDate = new Date(ageDifMs); // miliseconds from epoch
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+    function checkDateofBirth() {
+      var element = document.getElementById("DateofBirth");
+      element.classList.remove("is-invalid");
+      var date = document.getElementById("DateofBirth").value;
+      var birthDate = new Date(date); //dd-mm-YYYY
+
+      if( 17 >= _calculateAge(birthDate)) {
+        // alert("The Date of Birth should be in past!");
+        element.classList.remove("is-valid");
+        element.classList.add("is-invalid");
+        return false;
+      }
+      else{
+        element.classList.add("is-valid");
+        return true;
+      }
+    }
+
+    document.getElementById("register").addEventListener("click", function(event){
+      if(!checkDateofBirth()){
+        event.preventDefault();
+      }
+    });

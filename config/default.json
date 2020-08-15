@@ -1,0 +1,14 @@
+{
+  "name": "Alumni Advisoy App",
+  "jwtPrivateKey": "jwtPrivateKey",
+  "GITHUB_CLIENT_ID": "a8c9da4d4dfe8f7941f8",
+  "GITHUB_CLIENT_SECRET": "10e51f761180f6a18bec63b62356069f34289f2a",
+  "FACEBOOK_APP_ID": "797017794120815",
+  "FACEBOOK_APP_SECRET": "c87a0554e634378e3ded2fa524e593f3",
+  "GOOGLE_CLIENT_ID": "364272470742-dnvgnir54kqhdmvavsguvl0gda9js29t.apps.googleusercontent.com",
+  "GOOGLE_CLIENT_SECRET": "xx_kLcFm2J2Fg1MBfdBpU9ha",
+  "OAuth2_CLIENT_ID": "364272470742-g0e3l1e0jkuul8sbmo8jco0u2eegejlu.apps.googleusercontent.com",
+  "OAuth2_CLIENT_SECRET": "vU6xkRdqKR7DGEtMfhlywVEg",
+  "OAuth2_REFRESH_TOKEN":"1//04OVNwBuyuzTNCgYIARAAGAQSNwF-L9IrjJMvCQr8a6FptedVQY3jFg46feLNZsgm9hcZV96hseRS_CmDj0L96iUSXtPgyGCvByk",
+  "OAuth2_ACCESS_TOKEN":"ya29.ya29.a0AfH6SMDne0w3YHNFBOk6y_xL6dv64oAJfyD_FMvRdfjqcZqc5ZunZ1_1ntag0wMLwKIQAXul03BgPlMtjEEArsVdcuAHuQHi65H72Ae_s4si3HehJl_7IgnTiT7RatiUYjoM9VFnRt2GivsEuXZNO_Yez7GIUtP9Vko"
+}

@@ -1,0 +1,92 @@
+extends layout
+
+block content
+  .main.container
+    .row
+      .col-md-8.col-md-offset-2
+        h1.display-4.m-b-2(style='color:purple;') Mentorship Program
+        br
+        ul#myTab.nav.nav-tabs(role='tablist')
+          li.nav-item(role='presentation')
+            a#home-tab.nav-link.active(data-toggle='tab' href='#home' role='tab' aria-controls='home' aria-selected='true' style='color:black;') Home
+          if currentUser && amIMentor
+            li#mentorsNav.nav-item(role='presentation')
+              a#mentor-tab.nav-link.checkMentor(data-toggle='tab' href='#profile' role='tab' aria-controls='profile' aria-selected='false' style='color:black;') Mentor Profile
+          if availableRequests
+            li#menteesNav.nav-item(role='presentation')
+              a#mentee-tab.nav-link.checkMentee(data-toggle='tab' href='#contact' role='tab' aria-controls='contact' aria-selected='false' style='color:black;') Mentee Profile
+        #myTabContent.tab-content
+          #home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='home-tab') 
+            br
+            if availableMentors && !amIMentor
+              .item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/request.jpg' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a.show-toast(href='/mentorship/mentorsList?pageNumber=1' style="color:purple;") Request a Mentor
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Browse a list of mentors and send requests to be their mentees based on their profiles, strategies and area of expertise. 
+                          a.more-link.badge.badge-info.stretched-link.show-toast(href='/mentorship/mentorsList?pageNumber=1' style='margin-up: 2%;') Request now
+            if !availableRequests
+              .item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/apply.jpg' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a.show-toast(href='/mentorship/mentorForm' style="color:purple;") Apply to be a Mentor
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Complete the application form of mentors and start getting requests from students who need you to guide them and give them advices. 
+                          a.more-link.badge.badge-info.stretched-link.show-toast(href='/mentorship/mentorForm' style='margin-up: 2%;') Apply now
+          if currentUser && amIMentor
+            #profile.tab-pane.fade(role='tabpanel' aria-labelledby='mentor-tab') 
+              br
+              #mentor.item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/mentor.jpg' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a(href="/mentorship/mentorPage" style="color:purple;") Mentors Management Profile
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Here you can approve and delete requests, check mentorships, view mentees and their contact info. 
+                          a.more-link.badge.badge-info.stretched-link(href="/mentorship/mentorPage" style='margin-up: 2%;') Check mentorships
+          if availableRequests
+              #contact.tab-pane.fade(role='tabpanel' aria-labelledby='mentee-tab')
+                br
+                #mentee.item.mb-5.card.bg-light.mb-3
+                  .media
+                    img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/mentee.png' alt='image' style="width: 200px; height: 200px")
+                    .media-body
+                        .card-header
+                          h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                            a(href='/mentorship/menteePage' style="color:purple;") Mentees Management Profile
+                        .intro.card-body
+                          p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                            | Here you can see your mentorships and check your requests if approved or pending, if your request is refused you'll not be able to see it.  
+                            a.more-link.badge.badge-info.stretched-link(href='/mentorship/menteePage' style='margin-up: 2%;') Check requests
+  .toast(style='position: absolute; top: 25%; right: 25%;')
+    .toast-header
+      img.rounded.mr-2(src='/images/warning.jpg' alt='warning' style='width:20px; height:20px;')
+      strong.mr-auto Notice!
+      small now
+      button.ml-2.mb-1.close(type='button' data-dismiss='toast' aria-label='Close')
+        span(aria-hidden='true') &times;
+    .toast-body
+      | Sign in to join Mentorship program!
+  if !currentUser
+    script. 
+      $(document).ready(function(){
+          $(".show-toast").click(function(event){
+              $(".toast").toast({
+                  autohide: true,
+                  delay: 5000
+              }).toast('show');
+              event.preventDefault();
+          }); 
+      });

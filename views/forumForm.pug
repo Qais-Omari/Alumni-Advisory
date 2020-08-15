@@ -1,0 +1,100 @@
+extends layout
+
+block content
+  header.header.text-center
+   .main-wrapper
+    section.cta-section.theme-bg-light.py-5(style="background-color:#AEB6BF;")
+      .container.text-center(style="overflow:auto")
+        h2.heading Post on the Community Forum
+        .intro Write down your post and see other's posts.
+        br
+        -if (typeof(post) !== 'undefined') var action = '/posts/update'; else var action ='/posts';
+        form.needs-validation(method='POST' action=action enctype="multipart/form-data" novalidate)
+         .form-group.row
+          if post
+            input(type="hidden", name="postId", value=post._id)
+            input(type="hidden", name="authorId" value=post.author.id)
+          label.col-sm-2.col-form-label(for='title') Title
+          .col-sm-10
+            -if (typeof(post) !== 'undefined') var postTitle = post.title
+            input#title.form-control(type='text' value=postTitle name="title" placeholder='Your Post title' minlength="5" maxlength="50" required)
+            .invalid-feedback
+              | Please provide a title within 5 to 50 characters.
+         .form-group.row
+          label.col-sm-2.col-form-label(for='textArea') Content
+          .col-sm-10
+            -if (typeof(post) !== 'undefined') var content = post.content
+            textarea#textArea.form-control(name="content" cols="125" rows="10" wrap="hard" placeholder="Write the details of the post." minlength="100" required)
+              | #{content}
+            .invalid-feedback
+              | Please enter a content in the textarea which contains at least 100 characters.
+         .input-group
+          .custom-file
+            input#inputGroupFile04.custom-file-input(type='file' name="photo")
+            label.custom-file-label(for='inputGroupFile04') Append a photo (Optional)
+          .input-group-append
+            -if (typeof(post) !== 'undefined') var caption = 'Update'; else var caption= 'Post';
+            button.btn.btn-info(type='submit') #{caption}
+            if post
+              // Button trigger modal
+              button.btn.btn-danger(type='button' data-toggle='modal' data-target='#exampleModal')
+                | Delete
+              
+  // Modal
+  #exampleModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel.modal-title Delete Post
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          | Are you sure you want to delete this post?
+        .modal-footer
+         if post 
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+          form(method='POST' action='/posts/delete/')
+            input(type="hidden", name="id", value=post._id)
+            button.btn.btn-danger(type='submit' role='button' aria-pressed='true') Delete
+  script.
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+    'use strict';
+      window.addEventListener('load', function() {
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.getElementsByClassName('needs-validation');
+      // Loop over them and prevent submission
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+
+    var check = function() {
+      if (document.getElementById('password').value ==
+        document.getElementById('confirm_password').value) {
+        document.getElementById('message').style.color = 'green';
+        document.getElementById('message').innerHTML = ' Matching';
+      } else {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = ' Not matching';
+      }
+    }
+
+    var checkBeforeSubmit = function() {
+      if (document.getElementById('password').value ==
+        document.getElementById('confirm_password').value) {
+        document.getElementById('message').style.color = 'green';
+        document.getElementById('message').innerHTML = ' Matching';
+      } else {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = ' Not matching';
+        document.getElementById('confirm_password').value = '';
+      }
+    }

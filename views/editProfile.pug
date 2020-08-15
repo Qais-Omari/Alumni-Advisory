@@ -1,0 +1,181 @@
+extends layout
+
+block content
+  link(type='text/css' rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500')
+  .main.container.clearfix
+    .row
+      .col-md-2
+      .col-md-8.col-md-offset-2
+          h1.display-5(style="color:purple;")
+            -if(currentUser.photo) var img = currentUser.photo.replace("uploads\\","/");
+            img.avatar.img-circle.hidden-xs-down(src=img || '/images/avatar.png' , alt='avatar')
+            | #{name}
+          br
+          br
+          form.needs-validation(action="/profile/update", method="post", enctype="multipart/form-data" novalidate)
+            .row
+              .col
+                label(for='email' style="color:purple;") E-mail
+              .col
+                -var emailTxt = email;
+                input.form-control(type='text' name="email" value=emailTxt readonly)
+            br
+            br
+            .row
+              .col
+                label(for='name' style="color:purple;") Full name
+              .col
+                -var nameTxt = name
+                input.form-control(name='name' type='text'  minlength="8" maxlength="30" pattern='^[a-z \s A-Z]+$' value=nameTxt)
+                .invalid-feedback
+                  | Please enter a name within 8 to 30 characters.
+            br
+            br
+            .row
+              .col
+                label(for='DateofBirth' style="color:purple;") Date of Birth:
+              .col
+                -var dateTxt = birthDate
+                input#DateofBirth.form-control(name='birthDate' type='date' onblur="checkDateofBirth()" value=dateTxt)
+                .invalid-feedback
+                  | Your age shouldn't be younger than 17 years old.
+            br
+            br
+            .row
+              .col
+                label(for='phone' style="color:purple;") Phone number
+              .col
+                -var phoneTxt= phone
+                input.form-control(name='phone' type='tel' placeholder='+962 7 xxxxxxxx' pattern='^[0-9 +][0-9 \s]+[0-9]$' minlength="9" maxlength="20" title='You should follow either this pattern +962 7 xxxxxxxx or 07x xxxxxxx' value=phoneTxt)
+                .invalid-feedback
+                  | Your number shouldn't contain letters or symbols (except '+' at the beginning) and within 9 to 20 digits.
+            br
+            br
+            .row
+              .col
+                label(for='Place' style="color:purple;") Address
+              .col
+                #locationField
+                -var addressTxt= address
+                  input#autocomplete.form-control(name='address' placeholder='Enter your address' onfocus='geolocate()' minlength="7" maxlength="50" type='text' value=addressTxt)
+                  .invalid-feedback
+                    | Please enter an address within 7 to 50 characters.
+            br
+            br
+            .row
+              .col
+                label(for='linkedIn' style="color:purple;") LinkedIn account link
+              .col
+                -var linkedInTxt= linkedIn
+                input.form-control(name='linkedIn' type='text' placeholder="https://www.linkedin.com/..." minlength="25" maxlength="100" title='It must start with https://www.linkedin.com/' pattern="https:\/\/www\.linkedin\.com\/[A-Z a-z 0-9 / -]+" value=linkedInTxt)
+                .invalid-feedback
+                  | Please enter a valid linkedIn profile link which starts with https://www.linkedin.com/...
+            h6.favorite-book Upload a photo
+            .input-group.mb-3
+              .input-group-prepend
+                span.input-group-text Upload
+              .custom-file
+                input#photo.custom-file-input(type='file', name="imageFile")
+                label.custom-file-label(for='photo') Image file
+                .invalid-feedback
+                  | Please select a valid state.
+            br
+            .form-group
+              label(for='myTextarea' style="color:purple;") Biography
+              textarea#myTextarea.form-control(name="bio" rows='3' wrap="hard" maxlength="180" placeholder="Write your bio here.")
+                | #{bio}
+              .invalid-feedback
+                | Please enter a bio with maximum 180 characters.
+            if !hideBtn
+              button#edit.btn.btn-outline-dark.my-2.my-sm-0(type='submit' style="margin-left:45%;") Save
+  
+  script.
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+
+    function _calculateAge(birthday) { // birthday is a date
+      var ageDifMs = Date.now() - birthday.getTime();
+      var ageDate = new Date(ageDifMs); // miliseconds from epoch
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+    function checkDateofBirth() {
+      var element = document.getElementById("DateofBirth");
+      element.classList.remove("is-invalid");
+      var date = document.getElementById("DateofBirth").value;
+      var birthDate = new Date(date); //dd-mm-YYYY
+
+      if( 17 >= _calculateAge(birthDate)) {
+        // alert("The Date of Birth should be in past!");
+        element.classList.remove("is-valid");
+        element.classList.add("is-invalid");
+        return false;
+      }
+      else{
+        element.classList.add("is-valid");
+        return true;
+      }
+    }
+
+    document.getElementById("edit").addEventListener("click", function(event){
+      if(!checkDateofBirth()){
+        event.preventDefault();
+      }
+    });
+    // This sample uses the Autocomplete widget to help the user select a
+    // place, then it retrieves the address components associated with that
+    // place, and then it populates the form fields with those details.
+    // This sample requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // <script
+    // src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+    var placeSearch, autocomplete;
+    var componentForm = {
+    street_number: 'short_name',
+    route: 'long_name',
+    locality: 'long_name',
+    administrative_area_level_1: 'short_name',
+    country: 'long_name',
+    postal_code: 'short_name'
+    };
+    function initAutocomplete() {
+    // Create the autocomplete object, restricting the search predictions to
+    // geographical location types.
+    autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('autocomplete'), {types: ['geocode']});
+    // Avoid paying for data that you don't need by restricting the set of
+    // place fields that are returned to just the address components.
+    autocomplete.setFields(['address_component']);
+    }
+    // Bias the autocomplete object to the user's geographical location,
+    // as supplied by the browser's 'navigator.geolocation' object.
+    function geolocate() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var geolocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        var circle = new google.maps.Circle({center: geolocation, radius: position.coords.accuracy});
+        autocomplete.setBounds(circle.getBounds());
+        });
+      }
+    }
+  script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAuGk-iGTG45GeWgG_89zpGdRCHuDlai9U&libraries=places&callback=initAutocomplete' async='' defer='')
+  

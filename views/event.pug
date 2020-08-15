@@ -1,0 +1,246 @@
+extends layout
+
+block content
+  style.
+    .iframe-container{
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Ratio 16:9 ( 100%/16*9 = 56.25% ) */
+    }
+    .iframe-container > *{
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    }
+  .main.container.clearfix
+   form.needs-validation(method='POST' action='/events/' novalidate)
+    .row
+      .col-md-6
+          -if (typeof(event) !== 'undefined') var caption="Edit"; else var caption="Create";
+          if !readonlyInputs
+            h1.display-5(style="color:purple;") #{caption} an event
+          else 
+            h1.display-5(style="color:purple;") Event Details
+          br        
+          .row
+            .col-md-4
+              label(for='title' style="color:purple;") Title
+              if event
+                input(type="hidden", name="id", value=event._id)
+            .col-md-10
+              -if (typeof(event) !== 'undefined') var name = event.title
+              input.form-control(type='text' value=name name="title" placeholder="Enter the event's title" readonly=readonlyInputs minlength="5" maxlength="50" required)
+              .invalid-feedback
+                | Please provide a title within 5 to 50 characters
+          .row
+            .col-md-4
+              label(for='date' style="color:purple;") Date
+            .col-md-10
+              -if (typeof(event) !== 'undefined') var date = event.date
+              input#Date.form-control(type='date' value=date name="date" placeholder="Enter the event's date" onblur="checkDate()" readonly=readonlyInputs required)
+              .invalid-feedback
+                | Please select a date in the future.
+          .row
+            .col-md-4
+              label(for='address' style="color:purple;") Address
+            .col-md-10
+              -if (typeof(event) !== 'undefined') var address= event.address
+              input#address.form-control(type='text' value=address name="address" minlength='7' maxlength='50' placeholder='Enter event\'s detailed address' readonly=readonlyInputs required)
+              .invalid-feedback
+                  | Please provide an address within 7 to 50 characters.
+          .row
+            .col-md-4
+              label(for='description' style="color:purple;") Description
+            .col-md-10
+              -if (typeof(event) !== 'undefined') var description = event.description
+              textarea.form-control(name="description", cols="30", rows="10",placeholder="Write down your event's details", minlength="100", readonly=readonlyInputs required)
+                | #{description}
+              .invalid-feedback
+                  | Please provide a description which contains at least 100 characters.
+      .col-md-6
+        //h1.display-5(style='color:black;') Please mark the event's place on the map
+        -if (typeof(event) !== 'undefined') var coordinates = '(' + event.coordinates[0]+ ', '+event.coordinates[1]+')'
+        input#coords(type='text' value=coordinates name="coordinates" style="color:black; position: absolute; left: 100px; top:100px; z-index: -1; " oninvalid="unSelectAll()" oninput="this.setCustomValidity('')" required)
+        .iframe-container#map(style="height:80%" onclick='selectAll()')
+        if !readonlyInputs
+          .row
+            .col
+              .form-group
+                .form-check
+                  input#invalidCheck.form-check-input(type='checkbox' name='check' value='' required='')
+                  label.form-check-label(for='invalidCheck' style='color:black;')
+                    | Mark event's address on the map
+                  .invalid-feedback
+                    | You must mark before creating.
+        .row
+            .col-md-5
+            .col-md-7
+              br
+              if !readonlyInputs
+                -if (typeof(event) !== 'undefined') var caption="Update"; else var caption="Create";
+                button#create.btn.btn-secondary.my-2.my-sm-0(type='submit') 
+                  | #{caption}
+        .row
+          .col-md-10
+          .col-md-2 
+            if event && !readonlyInputs
+              // Button trigger modal
+              button.btn.btn-danger(type='button' data-toggle='modal' data-target='#exampleModal' style='margin: 2% 0 0 1%;')
+                | Delete
+  // Modal
+  #exampleModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel.modal-title Delete Event
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          | Are you sure you want to delete this event?
+        .modal-footer
+         if event
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+          form(method='POST' action='/events/delete/')
+            input(type="hidden", name="id", value=event._id)
+            button.btn.btn-danger(type='submit' role='button' aria-pressed='true') Delete
+
+  if event
+    script. 
+      var lat = #{event.coordinates[0]};
+      var lng = #{event.coordinates[1]};
+      
+  script.
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+            //Use parse() method to convert JSON string to JSON object
+            var responseJsonObj = JSON.parse(this.responseText);
+            //console.log( responseJsonObj.plus_code );
+            //console.log( responseJsonObj.results );
+            document.getElementById("address").value = responseJsonObj.results[0].formatted_address;
+        }
+    };
+    
+    function checkDate() {
+      var element = document.getElementById("Date");
+      element.classList.remove("is-invalid");
+      var date = document.getElementById("Date").value;
+      var varDate = new Date(date); //dd-mm-YYYY
+      var today = new Date();
+      today.setHours(24,0,0,0);
+      if( varDate.getTime() <= today.getTime()) {
+        //alert("The Event's Date should be in future!");
+        element.classList.remove("is-valid");
+        element.classList.add("is-invalid");
+        return false;
+      }
+      else{
+        element.classList.add("is-valid");
+        return true;
+      }
+    }
+
+    function unSelectAll(){
+      var items=document.getElementsByName('check');
+      for(var i=0; i<items.length; i++){
+        if(items[i].type=='checkbox'){
+          items[i].checked=false;	
+        }   
+      }
+    }
+    
+    function selectAll(){
+      var items=document.getElementsByName('check');
+      for(var i=0; i<items.length; i++){
+        if(items[i].type=='checkbox'){
+          items[i].checked=true;
+        }
+      }
+    }
+
+    document.getElementById("create").addEventListener("click", function(event){
+      if(!checkDate()){
+        event.preventDefault();
+      }
+    });
+
+    function initMap() {  
+      //Maps options
+      var options = {
+      zoom: 10,
+      center: { lat: 31.9539, lng: 35.9106 },
+      };
+      //New Map
+      var map = new google.maps.Map(document.getElementById("map"), options);
+      
+      var marker;
+      if (typeof lat  !== 'undefined'){
+        //-do something
+        var marker = new google.maps.Marker({
+            position:  { lat: lat, lng: lng },
+            map: map,
+            draggable: true,            
+            animation: google.maps.Animation.DROP,
+            title:"Drag me!"
+          });
+          marker.setMap(map);
+      }
+
+      function placeMarker(location) {
+        if (marker) {
+          marker.setPosition(location);
+        } else {
+          marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+            title:"Drag me!"
+          });
+        }
+      }
+      //console.log(#{readonlyInputs});
+      if(!#{readonlyInputs}){
+        google.maps.event.addListener(map, "click", function (event) {
+        placeMarker(event.latLng);
+        
+        var coords = (event.latLng).toString();
+        var coordsQuery = coords.slice(1, coords.length - 1);
+        
+        xmlhttp.open("POST", `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordsQuery}&key=AIzaSyAuGk-iGTG45GeWgG_89zpGdRCHuDlai9U`, true);
+        
+        xmlhttp.send();
+        document.getElementById("coords").value = event.latLng;
+      });
+      }
+    }
+  script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAuGk-iGTG45GeWgG_89zpGdRCHuDlai9U&callback=initMap&libraries=&v=weekly' defer='')

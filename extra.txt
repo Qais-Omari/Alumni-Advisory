@@ -1,0 +1,797 @@
+/*
+router.get("/cancel/:id", requiresLogin, async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    throw new Error("Invalid request.");
+
+  const request = await Request.findOneAndUpdate({_id: req.params.id, status:'approved'}, {
+    status: "cancelled",
+  }).populate("mentorship", "mentor");
+
+  if (!request) throw new Error("There's no active mentorship to be cancelled!");
+
+  if (request.requester != req.session.passport.user)
+    throw new Error("Not allowed!");
+
+  const recipient = await User.findById(request.mentorship.mentor).select(
+    "name email"
+  );
+  transporter.sendMail(
+    getMailOptions(
+      recipient.email,
+      "A mentee cancelled the mentorship",
+      `The mentorship program with ${req.user.name} has been cancelled and he is not your mentee anymore!`
+    ),
+    function (err, res) {
+      if (err) debug(err);
+      else debug("email is sent");
+    }
+  );
+
+  res.redirect("/mentorship/menteePage");
+});
+
+router.get("/deleteMentee/:id", requiresLogin, async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    throw new Error("Invalid request.");
+
+  const request = await Request.findById(req.params.id).populate(
+    "mentorship",
+    "mentor"
+  );
+  if (!request) throw new Error("Your request is already deleted!");
+
+  if (request.mentorship.mentor != req.session.passport.user)
+    throw new Error("Not allowed!");
+
+  await Request.findOneAndDelete({
+    _id: req.params.id,
+    status: { $in: ["cancelled", "finished"] },
+  });
+
+  res.redirect("/mentorship/mentorPage");
+});
+*/
+
+/*
+const asyncMiddleware = require("../middleware/async");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const { User, validate } = require("../models/user");
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcrypt");
+const _ = require("lodash");
+const mongoose = require("mongoose");
+const Fawn = require("fawn");
+
+Fawn.init(mongoose);
+
+/*
+router.get("/", async (req, res, next) => {
+  const users = await User.find().sort("name");
+  res.send(users);
+});
+
+router.get("/:id", async (req, res, next) => {
+  const user = await User.findOne(req.param.id);
+
+  if (!user) return res.status(404).send("<h1>User is not found!</h1>");
+  res.send(user);
+});
+*/
+router.get("/me", auth, async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user._id }).select("-password");
+  res.send(user);
+});
+
+router.post("/", async (req, res, next) => {
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(result.error.details[0].message);
+
+  let user = await User.findOne({ email: req.body.email });
+  if (user) return res.status(400).send("User already registered");
+
+  user = new User({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    isAdmin: req.body.isAdmin
+  });
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
+  new Fawn.Task().save("users", user).run();
+  //await user.save();
+  const token = user.generateAuthToken();
+  res
+    .header("x-auth-token", token)
+    .send(_.pick(user, ["_id", "name", "email"]));
+});
+
+router.put("/:id", async (req, res, next) => {
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(result.error.details[0].message);
+
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("Invalid user.");
+
+  const user = await User.findOneAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      isAdmin: req.body.isAdmin
+    },
+    {
+      new: true
+    }
+  );
+
+  if (!user) return res.status(404).send("<h1>User is not found!</h1>");
+
+  res.send(user);
+});
+
+router.delete("/:id", [auth, admin], async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+
+  if (!user) return res.status(404).send("<h1>User is not found!</h1>");
+
+  res.send(user);
+});
+
+module.exports = router;
+
+*/
+
+<!--            .form-group.row
+                .col-sm-6(style='color:black;') Communcation Medium
+                .col-sm-6.checkbox-group
+                    .form-check
+                        input#gridCheck2.form-check-input(type='checkbox' name="communication" value="email" checked required)
+                        label.form-check-label(for='gridCheck2' style='color:black;')
+                            | E-mail (* obligatory)
+                    .form-check
+                        input#gridCheck1.form-check-input(type='checkbox' name="communication" value="phone")
+                        label.form-check-label(for='gridCheck1' style='color:black;')
+                            | Phone
+                    .form-check
+                        input#gridCheck3.form-check-input(type='checkbox' name="communication" value="chatroom")
+                        label.form-check-label(for='gridCheck3' style='color:black;')
+                            | Text messaging   -->
+
+script. 
+      $(document).ready(function(){
+        $(".checkMentor").click(function(){
+              $.ajax({ url: "/mentorship/checkMentors" ,timeout: 5000,
+               success: function(result,textStatus){
+                //$("#div1").html('success');
+                console.log('hello');
+              },
+                error: function(xhr, status, error) {
+                  alert(xhr.responseText);
+              }
+          });
+          $(".checkMentee").click(function(){
+              $.ajax({ url: "/mentorship/checkMentees", timeout: 5000,
+               success: function(result,textStatus){
+                //$("#div1").html('success');
+                //$("a").removeClass("show-toast-mentee");
+                console.log('bye');
+              },
+                error: function(xhr, status, error) {
+                  alert(xhr.responseText);
+                  //$("").attr("class", "show-toast-mentee");
+                  //$("").attr("class", "show-toast-mentee");
+              }
+          });
+      });
+    
+
+router.get("/checkMentors", requiresLogin, async (req, res, next) => {
+  const mentorship = await Mentorship.findOne({ mentor: req.user._id });
+  if (!mentorship)
+    return res.status(400).send("There's no mentorships available!");
+  return res.status(200).send("A mentorship exists for this user!");
+});
+
+router.get("/checkMentees", requiresLogin, async (req, res, next) => {
+  const requests = await Request.find({
+    requester: req.user._id,
+    status: { $in: ["approved", "pending"] },
+  });
+
+  if (requests.length == 0)
+    return res.status(400).send("There's no requests pending or approved!");
+  return res.status(200).send("A request or more exist for this user!");
+});
+
+
+router.post("/apply", requiresLogin, async (req, res, next) => {
+  const mentorship = {
+    mentor: req.session.passport.user,
+    domain: req.body.domain,
+    duration: req.body.duration,
+    availability: req.body.availability,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    target: req.body.target,
+    strategy: req.body.strategy,
+    capacity: req.body.capacity,
+  };
+
+  const { error } = validateMentorship(mentorship);
+  if (error) throw new Error(result.error.details[0].message);
+
+  if (
+    await Mentorship.findOne({
+      mentor: req.user._id,
+      status: { $ne: "inactive" },
+    })
+  )
+    await Mentorship.updateOne({ mentor: req.user._id }, mentorship, {
+      upsert: true,
+    });
+  else await Mentorship.create(mentorship);
+  res.redirect("/mentorship");
+});
+
+extends layout
+
+block content
+  .main.container
+    .row
+      .col-md-8.col-md-offset-2
+        h1.display-4.m-b-2(style='color:purple;') Mentorship Program
+        br
+        ul#myTab.nav.nav-tabs(role='tablist')
+          li.nav-item(role='presentation')
+            a#home-tab.nav-link.active(data-toggle='tab' href='#home' role='tab' aria-controls='home' aria-selected='true' style='color:black;') Home
+          if currentUser && amIMentor
+            li#mentorsNav.nav-item(role='presentation')
+              a#profile-tab.nav-link.checkMentor(data-toggle='tab' href='#profile' role='tab' aria-controls='profile' aria-selected='false' style='color:black;') Mentor Profile
+          if availableRequests
+            li#menteesNav.nav-item(role='presentation')
+              a#contact-tab.nav-link.checkMentee(data-toggle='tab' href='#contact' role='tab' aria-controls='contact' aria-selected='false' style='color:black;') Mentee Profile
+        #myTabContent.tab-content
+          #home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='home-tab') 
+            br
+            if availableMentors
+              .item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='https://i.picsum.photos/id/1/5616/3744.jpg?hmac=kKHwwU8s46oNettHKwJ24qOlIAsWN9d2TtsXDoCWWsQ' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a.show-toast(href='/mentorship/mentorsList?pageNumber=1' style="color:purple;") Request a Mentor
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Browse a list of mentors and send requests to be their mentees based on their profiles, strategies and area of expertise. 
+                          a.more-link.badge.badge-info.stretched-link.show-toast(href='/mentorship/mentorsList?pageNumber=1' style='margin-up: 2%;') Request now
+            .item.mb-5.card.bg-light.mb-3
+               .media
+                img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/apply.jpg' alt='image' style="width: 200px; height: 200px")
+                .media-body
+                    .card-header
+                      h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                        a.show-toast(href='/mentorship/mentorForm' style="color:purple;") Apply to be a Mentor
+                    .intro.card-body
+                      p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                        | Complete the application form of mentors and start getting requests from students who need you to guide them and give them advices. 
+                        a.more-link.badge.badge-info.stretched-link.show-toast(href='/mentorship/mentorForm' style='margin-up: 2%;') Apply now
+          if currentUser && amIMentor
+            #profile.tab-pane.fade(role='tabpanel' aria-labelledby='profile-tab') 
+              br
+              .item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/apply.jpg' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a(href='/mentorship/mentorForm' style="color:purple;") Modify your Mentorship Application
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Here you can view, update and delete only if no current mentees. 
+                          a.more-link.badge.badge-info.stretched-link(href='/mentorship/mentorForm' style='margin-up: 2%;') Modify now
+              #mentor.item.mb-5.card.bg-light.mb-3
+                .media
+                  img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/mentor.jpg' alt='image' style="width: 200px; height: 200px")
+                  .media-body
+                      .card-header
+                        h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                          a(href="/mentorship/mentorPage" style="color:purple;") Mentors Management Profile
+                      .intro.card-body
+                        p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                          | Here you can approve and delete requests, check mentorships, view mentees and their contact info. 
+                          a.more-link.badge.badge-info.stretched-link(href="/mentorship/mentorPage" style='margin-up: 2%;') Check mentorships
+          if availableRequests
+              #contact.tab-pane.fade(role='tabpanel' aria-labelledby='contact-tab')
+                br
+                .item.mb-5.card.bg-light.mb-3
+                  .media
+                    img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/request.jpg' alt='image' style="width: 200px; height: 200px")
+                    .media-body
+                        .card-header
+                          h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                            a(href='/mentorship/mentorsList?pageNumber=1' style="color:purple;") Request more Mentors
+                        .intro.card-body
+                          p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                            | Browse a list of mentors and send requests to be their mentees based on their profiles, strategies and area of expertise. 
+                            a.more-link.badge.badge-info.stretched-link(href='/mentorship/mentorsList?pageNumber=1' style='margin-up: 2%;') Request now
+                #mentee.item.mb-5.card.bg-light.mb-3
+                  .media
+                    img.img-thumbnail.rounded.float-left.mr-3.img-fluid.post-thumb.d-none.d-md-flex(src='/images/mentee.png' alt='image' style="width: 200px; height: 200px")
+                    .media-body
+                        .card-header
+                          h1.display-5.title.mb-1.font-weight-light(style='font-size:x-large;')
+                            a(href='/mentorship/menteePage' style="color:purple;") Mentees Management Profile
+                        .intro.card-body
+                          p.lead(style="color:black; font-size:medium; transform: rotate(0);")  
+                            | Here you can see your mentorships and check your requests if approved or pending, if your request is refused you'll not be able to see it.  
+                            a.more-link.badge.badge-info.stretched-link(href='/mentorship/menteePage' style='margin-up: 2%;') Check requests
+  .toast(style='position: absolute; top: 25%; right: 25%;')
+    .toast-header
+      img.rounded.mr-2(src='/images/warning.jpg' alt='warning' style='width:20px; height:20px;')
+      strong.mr-auto Notice!
+      small now
+      button.ml-2.mb-1.close(type='button' data-dismiss='toast' aria-label='Close')
+        span(aria-hidden='true') &times;
+    .toast-body
+      | Sign in to join Mentorship program!
+  if !currentUser
+    script. 
+      $(document).ready(function(){
+          $(".show-toast").click(function(event){
+              $(".toast").toast({
+                  autohide: true,
+                  delay: 5000
+              }).toast('show');
+              event.preventDefault();
+          }); 
+      });
+  else
+    script. 
+      $(document).ready(function(){
+        $(".checkMentor").click(function(){
+              $.ajax({url: "/mentorship/mentorPage",
+                error: function(xhr, status, error) {
+                 $("#mentor").hide(); 
+              }});
+          });
+          $(".checkMentee").click(function(event){
+              $.ajax({url: "/mentorship/menteePage",
+                error: function(xhr, status, error) {
+                  $("#mentee").hide();
+              }});
+          });
+      });
+//custom
+{
+    "db_password" : "alumni_dbPassword",
+    "jwtPrivateKey":"alumni_jwtPrivateKey"
+}
+//default
+{
+  "name": "Alumni Advisoy App",
+  "jwtPrivateKey": ""
+}
+//passport
+/*
+    user = await User.findOneAndUpdate(
+      {
+        email: profile.emails[0].value,
+      },
+      {
+        name: profile.displayName,
+        email: profile.emails[0].value,
+        photo: profile.photos[0].value,
+        isAdmin: false
+      },
+      { upsert: true },
+      done
+    );*/
+
+    router.post("/register", async (req, res, next) => {
+  if (
+    req.body.email &&
+    req.body.name &&
+    req.body.birthDate &&
+    req.body.password &&
+    req.body.confirmPassword
+  ) {
+    // confirm that user typed same password twice
+    if (req.body.password !== req.body.confirmPassword) {
+      var err = new Error("Passwords do not match.");
+      err.status = 400;
+      return next(err);
+    }
+
+    passwordComplexity().validate(req.body.password);
+
+    const { error } = validateUser(_.pick(req.body, ["email", "name", "password", "birthDate"]));
+
+    if (error) throw new Error(result.error.details[0].message);
+
+    let user = await User.findOne({ email: req.body.email });
+    if (user) throw new Error("User already registered");
+
+    // create object with form input
+    user = {
+      email: req.body.email,
+      name: req.body.name,
+      birthDate: req.body.birthDate,
+      password: req.body.password,
+    };
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+
+    // use schema's `create` method to insert document into Mongo
+    User.create(user, function (error, user) {
+      if (error) {
+        return next(error);
+      } 
+      req.session.passport = { user: user._id };
+      return res.redirect("/profile");
+      
+    });
+  } else {
+    var err = new Error("All fields required.");
+    err.status = 400;
+    return next(err);
+  }
+});
+
+// mentorships
+
+const debug = require("debug")("development");
+const express = require("express");
+const mongoose = require("mongoose");
+const _ = require("lodash");
+const {
+  Mentorship,
+  validate: validateMentorship,
+} = require("../models/mentorship");
+const { Request } = require("../models/request");
+const { requiresLogin } = require("../middleware");
+const formatDate = require("../utils/dates");
+
+const router = express.Router();
+
+router.get("/", async (req, res) => {
+  let availableMentors = false;
+  let availableRequests = false;
+  let amIMentor = false;
+  let mentorship = null;
+  let validReqsCounter = 0;
+
+  if (req.user) {
+    const myMentorship = await Mentorship.findOne({
+      mentor: req.user._id,
+      status: "active",
+    });
+
+    if (myMentorship) amIMentor = true;
+
+    mentorship = await Mentorship.findOne({
+      mentor: { $ne: req.user._id },
+      status: "active",
+    });
+
+    if (mentorship) {
+      const requests = await Request.find({
+        requester: req.user._id,
+        status: { $in: ["approved", "pending", "rejected"] },
+      })
+        .sort("status")
+        .populate({
+          path: "mentorship",
+          match: { status: "active", endDate: { $gte: new Date() } },
+        });
+
+      requests.forEach((request) => {
+        if (request.mentorship) {
+          validReqsCounter += 1;
+        }
+      });
+
+      if (requests.length !== 0 && validReqsCounter !== 0) {
+        availableRequests = true;
+      }
+    }
+  } else {
+    mentorship = await Mentorship.findOne();
+  }
+
+  if (mentorship) availableMentors = true;
+
+  return res.render("mentorship", {
+    title: "Mentorship",
+    availableMentors,
+    availableRequests,
+    amIMentor,
+  });
+});
+
+router.get("/mentorPage", requiresLogin, async (req, res) => {
+  const mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    status: "active",
+    endDate: { $gt: new Date() },
+  })
+    .lean()
+    .exec();
+  if (!mentorship) throw new Error("You haven't applied to be a mentor yet!");
+
+  mentorship.startDate = formatDate(mentorship.startDate);
+  mentorship.endDate = formatDate(mentorship.endDate);
+
+  let requests = await Request.find({
+    mentorship: mentorship._id,
+    status: "approved",
+  })
+    .lean()
+    .exec();
+
+  if (requests) {
+    mentorship.mentees = requests.length;
+  } else mentorship.mentees = 0;
+
+  requests = await Request.find({
+    mentorship: mentorship._id,
+    status: "pending",
+  })
+    .populate("requester", "name")
+    .lean()
+    .exec();
+
+  requests.forEach((request) => {
+    request.requestDate = formatDate(request.requestDate);
+  });
+
+  const mentees = await Request.find({
+    mentorship: mentorship._id,
+    status: "approved",
+  })
+    .sort("requestDate")
+    .populate("requester", "name")
+    .populate({
+      path: "mentorship",
+      populate: {
+        path: "mentor",
+        model: "User",
+        select: "name",
+      },
+    });
+
+  return res.render("mentorPage", {
+    title: "Mentor Homepage",
+    mentorship: mentorship,
+    requests: requests,
+    mentees: mentees,
+  });
+});
+
+router.get("/menteePage", requiresLogin, async (req, res) => {
+  const requests = await Request.find({
+    requester: req.user._id,
+    status: { $in: ["approved", "pending", "rejected"] },
+  })
+    .sort("status")
+    .populate({
+      path: "mentorship",
+      populate: {
+        path: "mentor",
+        model: "User",
+        select: "name",
+      },
+      match: { status: "active", endDate: { $gte: new Date() } },
+    })
+    .lean()
+    .exec();
+
+  let validReqsCounter = 0;
+
+  requests.forEach((request) => {
+    if (request.mentorship) {
+      validReqsCounter += 1;
+      request.mentorship.startDate = formatDate(request.mentorship.startDate);
+      request.mentorship.endDate = formatDate(request.mentorship.endDate);
+    }
+  });
+
+  if (requests.length === 0 || validReqsCounter === 0)
+    throw new Error(
+      "You did't send request to mentors or your requests are rejected!"
+    );
+
+  const mentors = await Request.find({
+    requester: req.user._id,
+    status: "approved",
+  })
+    .sort("requestDate")
+    .populate({
+      path: "mentorship",
+      populate: {
+        path: "mentor",
+        model: "User",
+        select: "name",
+      },
+      match: { status: "active", endDate: { $gte: new Date() } },
+    });
+  // debug(mentors);
+  return res.render("menteePage", {
+    title: "Mentee Homepage",
+    requests: requests,
+    mentors: mentors,
+  });
+});
+
+router.get("/mentorForm", requiresLogin, async (req, res) => {
+  const mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    status: "active",
+  })
+    .lean()
+    .exec();
+
+  if (mentorship) {
+    mentorship.startDate = formatDate(mentorship.startDate);
+    mentorship.endDate = formatDate(mentorship.endDate);
+    return res.render("mentorForm", {
+      title: "Mentorship Application",
+      mentorship,
+    });
+  }
+  return res.render("mentorForm", {
+    title: "Mentorship Application",
+  });
+});
+
+router.get("/mentorsList", requiresLogin, async (req, res) => {
+  const mentorships = await Mentorship.find({
+    mentor: { $ne: req.user._id },
+    status: "active",
+    startDate: { $gt: new Date() },
+  })
+    .populate("mentor", "name")
+    .lean()
+    .exec();
+
+  if (mentorships.length === 0) throw new Error("No available Mentors yet!");
+
+  await mentorships.forEach(async (mentorship) => {
+    const requests = await Request.find({
+      mentorship: mentorship._id,
+      status: "approved",
+    });
+    if (requests) mentorship.mentees = requests.length;
+    else mentorship.mentees = 0;
+
+    mentorship.startDate = formatDate(mentorship.startDate);
+    mentorship.endDate = formatDate(mentorship.endDate);
+  });
+
+  await mentorships.forEach(async (mentorship) => {
+    const requests = await Request.find({
+      mentorship: mentorship._id,
+      requester: req.user._id,
+    });
+    if (requests.length !== 0) {
+      mentorship.sentRequest = true;
+      // debug("found!");
+    }
+  });
+
+  return res.render("mentorsList", {
+    title: "Available Mentors",
+    mentorships: mentorships,
+  });
+});
+
+router.post("/apply", requiresLogin, async (req, res) => {
+  const mentorship = {
+    mentor: req.session.passport.user,
+    domain: req.body.domain,
+    duration: req.body.duration,
+    availability: req.body.availability,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    target: req.body.target,
+    strategy: req.body.strategy,
+    capacity: req.body.capacity,
+  };
+
+  const { error } = validateMentorship(mentorship);
+  if (error) throw new Error(error.details[0].message);
+
+  if (
+    await Mentorship.findOne({
+      mentor: req.user._id,
+      status: { $ne: "inactive" },
+    })
+  )
+    throw new mongoose.Error("A mentorship program is already created!");
+  else await Mentorship.create(mentorship);
+
+  res.redirect("/mentorship");
+});
+
+router.post("/cancel", requiresLogin, async (req, res) => {
+  let outdatedMentorship = false;
+
+  let mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    endDate: { $lt: new Date() },
+    status: "active",
+  });
+
+  if (mentorship) outdatedMentorship = true;
+
+  mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    status: "active",
+  });
+
+  let requests = [];
+
+  if (mentorship) {
+    requests = await Request.find({
+      mentorship: mentorship._id,
+      status: "approved",
+    });
+  }
+
+  if (outdatedMentorship || requests.length === 0) {
+    await Mentorship.findByIdAndUpdate(mentorship._id, {
+      $set: { status: "inactive" },
+    });
+    await Request.updateOne(
+      { mentorship: mentorship._id, status: "pending" },
+      { status: "rejected" }
+    );
+  } else {
+    throw new mongoose.Error(
+      "You can't cancel an active menorship which have mentees!"
+    );
+  }
+
+  res.redirect("/mentorship");
+});
+
+router.get("/check", requiresLogin, async (req, res) => {
+  let outdatedMentorship = false;
+
+  let mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    endDate: { $lt: new Date() },
+    status: "active",
+  });
+  // debug(mentorship);
+  if (mentorship) outdatedMentorship = true;
+
+  mentorship = await Mentorship.findOne({
+    mentor: req.user._id,
+    status: "active",
+  });
+  // debug(mentorship);
+  let requests = [];
+
+  if (mentorship) {
+    requests = await Request.find({
+      mentorship: mentorship._id,
+      status: "approved",
+    });
+    // debug(requests.length);
+  }
+  // debug(outdatedMentorship);
+  if (outdatedMentorship || requests.length === 0) {
+    res.redirect("/mentorship");
+  } else {
+    throw new mongoose.Error(
+      "You can't cancel an active menorship which have mentees!"
+    );
+  }
+});
+
+module.exports = router;
